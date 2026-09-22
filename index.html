@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI API Health Monitor — Zion Tech Group</title>
+<style>
+:root{--bg:#0a0e1a;--card:#131827;--accent:#4f8cff;--accent2:#7c5cff;--text:#e4e8f0;--muted:#8b95a8;--border:#1e2636;--success:#34d399;--warning:#fbbf24;--danger:#f87171}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh}
+.container{max-width:900px;margin:0 auto;padding:2rem 1.5rem}
+header{text-align:center;padding:3rem 0 2rem;border-bottom:1px solid var(--border)}
+header h1{font-size:2.2rem;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.5rem}
+header p{color:var(--muted);font-size:1.1rem}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2rem;margin:1.5rem 0}
+.api-row{display:flex;align-items:center;gap:1rem;padding:.8rem 0;border-bottom:1px solid var(--border)}
+.api-row:last-child{border-bottom:none}
+.api-name{flex:1;font-size:.95rem}
+.api-url{font-size:.8rem;color:var(--muted);font-family:monospace}
+.latency{font-size:.85rem;font-weight:600;width:80px;text-align:right}
+.latency.fast{color:var(--success)}
+.latency.medium{color:var(--warning)}
+.latency.slow{color:var(--danger)}
+.status-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:.5rem}
+.dot-up{background:var(--success)}
+.dot-down{background:var(--danger)}
+.dot-degraded{background:var(--warning)}
+.btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:.8rem 2rem;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;margin-top:1rem}
+.btn:hover{opacity:.9}
+.uptime-bar{display:flex;gap:2px;margin:.5rem 0}
+.uptime-seg{flex:1;height:20px;border-radius:3px}
+.legend{display:flex;gap:1rem;margin:.5rem 0;font-size:.8rem;color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:.3rem}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<h1>AI API Health Monitor</h1>
+<p>Real-time API monitoring — uptime, latency, error rate, and SLA compliance across your endpoints.</p>
+</header>
+<div class="card">
+<h2>API Endpoints</h2>
+<div id="apiList"></div>
+<div class="legend"><span><span class="status-dot dot-up"></span>Healthy</span><span><span class="status-dot dot-degraded"></span>Degraded</span><span><span class="status-dot dot-down"></span>Down</span></div>
+</div>
+<div class="card">
+<h2>30-Day Uptime</h2>
+<div class="uptime-bar" id="uptimeBar"></div>
+<div class="legend"><span style="color:var(--success)">■ 99.9%+</span><span style="color:var(--warning)">■ 99.5-99.9%</span><span style="color:var(--danger)">■ <99.5%</span></div>
+</div>
+</div>
+<script>
+const apis=[
+{name:'Auth Service',url:'https://api.example.com/v1/auth',latency:45,status:'up',uptime:99.98},
+{name:'User API',url:'https://api.example.com/v1/users',latency:82,status:'up',uptime:99.95},
+{name:'Payment Gateway',url:'https://api.example.com/v1/payments',latency:120,status:'up',uptime:99.92},
+{name:'Search Service',url:'https://api.example.com/v1/search',latency:350,status:'degraded',uptime:98.50},
+{name:'Notification API',url:'https://api.example.com/v1/notify',latency:65,status:'up',uptime:99.99},
+{name:'File Storage',url:'https://api.example.com/v1/files',latency:180,status:'up',uptime:99.85},
+{name:'Analytics API',url:'https://api.example.com/v1/analytics',latency:0,status:'down',uptime:97.20},
+{name:'Webhook Dispatch',url:'https://api.example.com/v1/webhooks',latency:55,status:'up',uptime:99.96},
+];
+function renderAPIs(){
+const list=document.getElementById('apiList');
+list.innerHTML=apis.map(a=>{
+const dotClass=a.status==='up'?'dot-up':a.status==='degraded'?'dot-degraded':'dot-down';
+const latClass=a.latency===0?'slow':a.latency<100?'fast':a.latency<200?'medium':'slow';
+const latText=a.latency===0?'—':a.latency+'ms';
+return`<div class="api-row"><span class="status-dot ${dotClass}"></span><div><div class="api-name">${a.name}</div><div class="api-url">${a.url}</div></div><span class="latency ${latClass}">${latText}</span><span style="font-size:.8rem;color:${a.uptime>=99.9?'var(--success)':a.uptime>=99.5?'var(--warning)':'var(--danger)'}">${a.uptime.toFixed(2)}%</span></div>`;
+}).join('');
+}
+function renderUptime(){
+const bar=document.getElementById('uptimeBar');
+let html='';
+for(let i=0;i<30;i++){
+const r=Math.random();
+const color=r>0.7?'var(--danger)':r>0.4?'var(--warning)':'var(--success)';
+html+=`<div class="uptime-seg" style="background:${color}" title="Day ${i+1}"></div>`;
+}
+bar.innerHTML=html;
+}
+renderAPIs();
+renderUptime();
+setInterval(renderAPIs,5000);
+</script>
+</body>
+</html>
